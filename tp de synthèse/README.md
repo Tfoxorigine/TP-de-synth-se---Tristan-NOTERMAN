@@ -77,7 +77,54 @@ La fonction `clock_gettime` prend deux paramètres :
    On choisit généralement `CLOCK_MONOTONIC`, qui permet de récupérer le temps écoulé depuis un instant arbitraire.
 
 2. **"L'état du timer"** :  
-   Cela fait référence aux variables `&start` ou `&end`, qui contiendront respectivement l'heure avant et après l'exécution de la commande. 
+   Cela fait référence aux variables `&start` ou `&end`, qui contiendront respectivement l'heure avant et après l'exécution de la commande.
+
+   # Question 6 : 
+
+## Exécution d’une commande complexe
+
+On commence par séparer la commande en argument avec la fonction `strdup`.
+
+La commande est découpée en tokens pour identifier les arguments et les opérateurs.  
+Pour cela, on utilise la fonction `strtok`. Elle divise la chaîne en sous-chaînes basées sur un séparateur (ici, l'espace `" "`).
+
+### Fonctionnement de `strtok`
+
+`strtok` a besoin de deux paramètres :  
+
+- **`str`** : La chaîne à découper. Lors du premier appel, on donne la chaîne de caractères en entier. Pour les appels suivants, il faut passer le paramètre à `NULL` pour continuer la découpe sur la même chaîne.
+- **`delim`** : Une chaîne qui contient les caractères qui délimitent. Lorsque l’on rencontre l’un de ces paramètres, la chaîne est découpée à cet endroit.
+
+Enfin, on exécute la commande avec `execvp`.
+
+# Question 7
+
+## Gestion des redirections de fichiers
+
+La commande est parcourue pour détecter les symboles `<` et `>`.  
+Si un symbole est trouvé, le fichier suivant est enregistré comme fichier d'entrée (`input_file`) ou de sortie (`output_file`).
+
+### Séparation de la commande en tokens
+
+Dans la question précédente, nous avons séparé la commande en tokens. On peut se servir de cette séparation pour spécifier que lorsqu’un token `<` ou `>` est détecté, le token suivant est traité comme le nom du fichier à rediriger.
+
+### Fonction `dup2`
+
+La fonction `dup2` permet de rediriger un descripteur de fichier vers un autre :
+
+- Si un fichier d'entrée est spécifié avec `<`, le descripteur de fichier standard `STDIN_FILENO` est redirigé vers ce fichier.
+- Si un fichier de sortie est spécifié avec `>`, le descripteur de fichier standard `STDOUT_FILENO` est redirigé vers ce fichier.
+
+### Exécution de la commande
+
+Juste après la gestion des redirections, la commande est exécutée avec `execvp`.
+
+## Gestion des erreurs
+
+- Si le fichier spécifié dans la redirection n'existe pas (pour `<`) ou ne peut pas être créé (pour `>`), le programme affiche un message d'erreur et quitte.
+- Si `<` ou `>` est utilisé sans spécifier de fichier, une erreur est signalée.
+- Si la commande exécutée par `execvp` échoue (par exemple, commande inexistante), un message d'erreur est affiché et le processus enfant termine avec un statut d'échec.
+
 
 
 ## Code
