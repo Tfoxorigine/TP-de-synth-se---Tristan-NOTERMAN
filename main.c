@@ -4,6 +4,7 @@
 #include <string.h>
 #include "prompt.h"
 #include "execution.h"
+#include "return42.h"
 
 // on essaie de garder le programme principal court et succint
 
