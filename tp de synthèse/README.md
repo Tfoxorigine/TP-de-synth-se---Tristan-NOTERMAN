@@ -64,6 +64,22 @@ Le **processus parent** utilise `waitpid()` pour attendre la fin du processus en
 La valeur renvoyée par `waitpid()` permet de savoir si le processus s'est terminé normalement ou s'il a été interrompu par un signal.
 
 
+# Question 5 : Mesure du Temps d'Exécution d'une Commande
+
+Pour mesurer le temps d'exécution d'une commande dans un shell, on utilise la fonction `clock_gettime`. Cette fonction permet de récupérer le temps à deux moments différents pour calculer la durée d'exécution.
+
+## Fonctionnement de `clock_gettime`
+
+La fonction `clock_gettime` prend deux paramètres :
+
+1. **`clk_id`** :  
+   L'identifiant de l'horloge que l’on veut utiliser.  
+   On choisit généralement `CLOCK_MONOTONIC`, qui permet de récupérer le temps écoulé depuis un instant arbitraire.
+
+2. **"L'état du timer"** :  
+   Cela fait référence aux variables `&start` ou `&end`, qui contiendront respectivement l'heure avant et après l'exécution de la commande. 
+
+
 ## Code
 \`\`\`c
 #include <stdio.h>
