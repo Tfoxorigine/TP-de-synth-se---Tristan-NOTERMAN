@@ -10,6 +10,7 @@
 #include "return42.h"
 #include <time.h>
 
+
 // zwécutz une commande utilisateur
 void execute_command(const char *command, int *status) {
     struct timespec start, end;
@@ -30,26 +31,39 @@ void execute_command(const char *command, int *status) {
         return;
     }
     if (pid == 0) {
-        // Processus enfant
-        char *argv[] = {strdup(command), NULL}; //Alloue une nouvelle chaîne de caractères en mémoire et copie le contenu de command dans cette chaîne
-        if (!argv[0] || strlen(argv[0]) == 0) {
-            perror("Invalid command");
-            free(argv[0]);
-            *status = 1;
-            return;
+
+        // Séparation de la commande en arguments
+        char *input_copy = strdup(command); // Copie de la commande pour éviter de modifier l'originale
+        if (!input_copy) {
+            perror("strdup error");
+            exit(EXIT_FAILURE);
         }
-        execvp(argv[0], argv); // exécute la commande
-        // Si execvp échoue, affiche un message et quitte
+
+        // Tokenisation de la chaîne en mots (séparés par des espaces)
+        char *token = strtok(input_copy, " ");
+        char *argv[256]; // Limité à 256 arguments
+        int argc = 0;
+         while (token != NULL && argc < 255) {
+            argv[argc++] = token;
+            token = strtok(NULL, " ");
+        }
+        argv[argc] = NULL; // Terminaison du tableau
+
+        // Exécuter la commande
+        execvp(argv[0], argv);
+
+        // Si execvp échoue
         perror("Command execution failed");
-        free(argv[0]);
+        free(input_copy);
         exit(EXIT_FAILURE);
+        
     } else {
         
         // Processus parent
         waitpid(pid, status, 0); // Attend la fin du processus enfant et récupère le statut
         clock_gettime(CLOCK_MONOTONIC, &end);
 
-                // Calcul du temps écoulé en millisecondes
+                //calcul du temps écoulé en millisecondes
         long seconds = end.tv_sec - start.tv_sec;
         long nanoseconds = end.tv_nsec - start.tv_nsec;
         long elapsed_ms = seconds * 1000 + nanoseconds / 1000000;
